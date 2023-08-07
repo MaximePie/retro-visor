@@ -1,34 +1,77 @@
-import {useCallback, useEffect, useState} from 'react'
 import './App.css'
+import {Users} from "./components/atoms/Users.tsx";
+import {UserForm} from "./components/atoms/UserForm.tsx";
+import {Roulette} from "./components/atoms/Roulette.tsx";
+import {useState} from "react";
+import {useSocket} from "./contexts/socket.tsx";
 
-import useWebSocket from 'react-use-websocket';
+function ChatForm() {
+  const [draftMessage, setDraftMessage] = useState<string | null>(null);
 
-function App() {
-  const { sendJsonMessage, lastJsonMessage, lastMessage } = useWebSocket(wsUrl);
-  const [messageHistory, setMessageHistory] = useState([]);
-
-  useEffect(() => {
-    console.log(lastJsonMessage)
-    console.log(lastMessage)
-
-    if (lastJsonMessage !== null) {
-      setMessageHistory(prev => prev.concat(lastJsonMessage));
-    }
-  }, [lastJsonMessage, setMessageHistory, lastMessage]);
-      const handleClickSendMessage = useCallback(() => sendJsonMessage({
-        action: "haha"
-      }), [sendJsonMessage]);
+  const { sendComment } = useSocket();
 
   return (
-    <>
-      <button onClick={handleClickSendMessage}>
-        send Message
+    <div className="ChatForm">
+      <h4>
+        Chat
+      </h4>
+      <input
+        type="text"
+        onChange={(event) => {
+            setDraftMessage(event.target.value);
+          }
+        }
+        value={draftMessage || ''}
+      />
+      <button
+        onClick={() => {
+          console.log(draftMessage)
+          setDraftMessage(null)
+          if (draftMessage !== '' && draftMessage !== null) {
+            sendComment(draftMessage)
+          }
+        }}
+      >
+        Envoyer
       </button>
-
-      {JSON.stringify(messageHistory)}
-    </>
+    </div>
   )
+}
 
+function Comments() {
+  const { comments } = useSocket();
+  return (
+    <div className="Comments">
+      {comments.map(({author, comment}, index) => {
+        return (
+          <p key={index}>
+            <strong>{author}</strong> : {comment}
+          </p>
+        )
+      })}
+    </div>
+  )
+}
+function App() {
+
+
+  return (
+    <div className="App">
+      <div>
+        <div>
+          <Users/>
+          <UserForm/>
+        </div>
+        <div className="App__chat">
+          <Comments/>
+          <ChatForm/>
+        </div>
+      </div>
+      <div className="App__body">
+        <Roulette/>
+      </div>
+    </div>
+  )
 }
 
 export default App
