@@ -28,13 +28,15 @@ export function Roulette() {
           />
         </div>
       </div>
-      <button
-        disabled={isSpinning}
-        onClick={onRouletteStart}
-        className="Roulette__spin"
-      >
-        Tourner la roue
-      </button>
+      {(!isSpinning) && (
+        <button
+          disabled={isSpinning}
+          onClick={onRouletteStart}
+          className="Roulette__spin"
+        >
+          Tourner la roue
+        </button>
+      )}
     </div>
   )
 }
